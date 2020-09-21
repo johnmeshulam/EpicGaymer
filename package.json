@@ -4,6 +4,7 @@
   "description": "Bot for the Gaymz Discord Server",
   "main": "bot.js",
   "scripts": {
+    "test": "echo Tests not implemented yet!",
     "start": "node src/bot.js"
   },
   "repository": {
