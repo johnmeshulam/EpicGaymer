@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/bot.js",
-    "dev": "npm build && npm start"
+    "test": "echo 'Test not implemented yet!'"
   },
   "repository": {
     "type": "git",
