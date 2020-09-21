@@ -105,3 +105,6 @@ dist
 
 #My notes file
 notes.txt
+
+#vscode files
+.vscode
