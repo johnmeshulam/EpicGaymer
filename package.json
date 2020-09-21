@@ -4,8 +4,9 @@
   "description": "Bot for the Gaymz Discord Server",
   "main": "bot.js",
   "scripts": {
-    "test": "echo Tests not implemented yet!",
-    "start": "node src/bot.js"
+    "build": "tsc",
+    "start": "node dist/bot.js",
+    "test": "echo 'Test not implemented yet!'"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,9 @@
   "homepage": "https://github.com/johnmeshulam/EpicGaymer#readme",
   "dependencies": {
     "discord.js": "^12.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.1",
+    "typescript": "^4.0.3"
   }
 }
