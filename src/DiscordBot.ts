@@ -28,7 +28,7 @@ export class DiscordBot {
   connect(): void {
     this.client
       .login(process.env.DEV_TOKEN)
-      .then((_) => console.log("Connected to Discord"))
+      .then(() => console.log("Connected to Discord"))
       .catch((error) =>
         console.error(`Could not connect. Error: ${error.message}`)
       );
