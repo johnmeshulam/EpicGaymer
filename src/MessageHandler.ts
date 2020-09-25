@@ -1,11 +1,14 @@
-import { Message } from "discord.js";
+import { DMChannel, Message } from "discord.js";
 import Config from "./config";
 
 export class MessageHandler {
   static handle(message: Message): void {
+    //Currently only handles server text channels
+    if (message.channel.type !== "text") return;
     if (!isCommand(message)) return;
 
-    //this message is a valid command
+    if (message.channel.name === Config.getValue("role-channel"))
+      console.log("Works!"); //TODO handle in role file
   }
 }
 
