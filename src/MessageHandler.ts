@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
-
-import { DBManager } from "./db/db";
+import Config from "./config";
 
 export class MessageHandler {
   static handle(message: Message): void {
@@ -11,5 +10,8 @@ export class MessageHandler {
 }
 
 function isCommand(message: Message): boolean {
-  return message.content.length > 1 && message.content[0] === "+";
+  return (
+    message.content.length > 1 &&
+    message.content[0] === Config.getValue("prefix")
+  );
 }
