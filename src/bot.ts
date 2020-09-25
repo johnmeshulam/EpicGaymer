@@ -1,13 +1,18 @@
 import { DiscordBot } from "./DiscordBot";
 import { DBManager } from "./db/db";
+import Config from "./config";
 
 const bot = DiscordBot.getInstance();
 
 try {
-  DBManager.getConnection().then(() => {
-    bot.connect();
-  });
+  init();
 } catch {
   console.error("Error during bot connection. Terminating program now");
   process.abort();
+}
+
+async function init() {
+  await DBManager.getConnection();
+  await Config.fetchValues();
+  await bot.connect();
 }
