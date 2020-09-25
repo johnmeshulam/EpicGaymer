@@ -1,4 +1,5 @@
 import { Client } from "discord.js";
+import { MessageHandler } from "./MessageHandler";
 
 export class DiscordBot {
   private static instance: DiscordBot;
@@ -16,6 +17,10 @@ export class DiscordBot {
       if (this.client.user)
         console.log(`Logged in as ${this.client.user.tag}!`);
     });
+
+    this.client.on("message", (msg) => {
+      MessageHandler.handle(msg);
+    });
   }
 
   static getInstance(): DiscordBot {
@@ -29,8 +34,9 @@ export class DiscordBot {
     this.client
       .login(process.env.DEV_TOKEN)
       .then(() => console.log("Connected to Discord"))
-      .catch((error) =>
-        console.error(`Could not connect. Error: ${error.message}`)
-      );
+      .catch((error) => {
+        console.error(`Could not connect. Error: ${error.message}`);
+        throw error;
+      });
   }
 }
