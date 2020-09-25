@@ -7,7 +7,7 @@ import {
 import { CollectionManager } from "../CollectionManager";
 import ConfigurationEntry from "../../models/config";
 
-export class ConfigurationManager extends CollectionManager {
+export default class ConfigurationManager extends CollectionManager {
   public constructor() {
     super("configuration");
   }
