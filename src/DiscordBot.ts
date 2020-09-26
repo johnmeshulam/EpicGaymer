@@ -30,10 +30,13 @@ export class DiscordBot {
     return DiscordBot.instance;
   }
 
-  connect(): void {
-    this.client
+  async connect(): Promise<void> {
+    return this.client
       .login(process.env.DEV_TOKEN)
-      .then(() => console.log("Connected to Discord"))
+      .then(() => {
+        console.log("Connected to Discord");
+        return;
+      })
       .catch((error) => {
         console.error(`Could not connect. Error: ${error.message}`);
         throw error;
