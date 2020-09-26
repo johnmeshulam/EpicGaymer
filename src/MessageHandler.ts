@@ -1,5 +1,6 @@
-import { DMChannel, Message } from "discord.js";
+import { Message } from "discord.js";
 import Config from "./config";
+import { RoleChannelHandler } from "./channels/RoleChannelHandler";
 
 export class MessageHandler {
   static handle(message: Message): void {
@@ -8,7 +9,7 @@ export class MessageHandler {
     if (!isCommand(message)) return;
 
     if (message.channel.name === Config.getValue("role-channel"))
-      console.log("Works!"); //TODO handle in role file
+      RoleChannelHandler.handleMessage(message);
   }
 }
 
