@@ -7,7 +7,7 @@ const bot = DiscordBot.getInstance();
 try {
   init();
 } catch {
-  console.error("Error during bot connection. Terminating program now");
+  console.error("Error during bot initiaization. Terminating program now");
   process.abort();
 }
 
