@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import Config from "./config";
-import { RoleChannelHandler } from "./channels/RoleChannelHandler";
+import { RoleChannelHandler } from "./commands/channels/RoleChannelHandler";
 
 export class MessageHandler {
   static handle(message: Message): void {
