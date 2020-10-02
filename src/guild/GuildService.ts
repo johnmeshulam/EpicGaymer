@@ -14,6 +14,15 @@ export default class GuildService {
     return channel;
   }
 
+  static hasRole(guild: Guild, name: string): boolean {
+    try {
+      this.getRole(guild, name);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static getRole(guild: Guild, name: string): Role {
     const role = guild.roles.cache.find(
       (role) => role.name.toLowerCase() === name.toLowerCase()
