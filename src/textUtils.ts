@@ -6,3 +6,7 @@ export function parseCommand(
     args: content.substring(content.indexOf(" ") + 1)
   };
 }
+
+export function createRoleIdentifier(name: string): string {
+  return name.toLowerCase().replace(/\s/g, "");
+}
