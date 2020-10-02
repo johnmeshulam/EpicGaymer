@@ -15,6 +15,9 @@ export class RoleChannelHandler {
       case "give":
         this.giveRoleCommand(message, content.args);
         break;
+      case "revoke":
+        this.revokeRoleCommand(message, content.args);
+        break;
       default:
         break;
     }
@@ -57,6 +60,43 @@ export class RoleChannelHandler {
     } catch (error) {
       message.react("⚠");
       console.error(error.message);
+      console.log(error.stack);
+    }
+  }
+
+  private static revokeRoleCommand(message: Message, name: string) {
+    try {
+      if (!message.member || !message.guild) return;
+
+      if (!MemberService.hasMemberRole(message.member)) {
+        message.reply(this.needToAcceptText(message.guild));
+        return;
+      }
+
+      if (!GuildService.hasRole(message.guild, name)) {
+        message.reply(this.roleNotFoundMessage(message.guild));
+        return;
+      }
+
+      if (!MemberService.hasRole(message.member, name)) {
+        message.reply(this.doesNotHaveRoleText(name));
+        return;
+      }
+
+      if (!AllowedRoles.hasRole(name)) {
+        message.react("🚫");
+        return;
+      }
+
+      MemberService.removeRole(
+        message.member,
+        GuildService.getRole(message.guild, name)
+      );
+      message.react("👍");
+    } catch (error) {
+      message.react("⚠");
+      console.error(error.message);
+      console.log(error.stack);
     }
   }
 
@@ -91,7 +131,7 @@ export class RoleChannelHandler {
   }
 
   private static needToAcceptText(guild: Guild): string {
-    return `Please accept the rules before requesting a game role! After reading ${GuildService.getChannel(
+    return `Please accept the rules before using commannds! After reading ${GuildService.getChannel(
       guild,
       "rules"
     ).toString()} type \`${Config.getValue("prefix")}accept\` to accept.`;
@@ -99,6 +139,10 @@ export class RoleChannelHandler {
 
   private static alreadyHasRoleText(name: string): string {
     return `You already have the role ${AllowedRoles.getRoleName(name)}!`;
+  }
+
+  private static doesNotHaveRoleText(name: string): string {
+    return `You do not have the role ${name}!`;
   }
 
   private static alreadyAcceptedText = "You have already accepted the rules!";
