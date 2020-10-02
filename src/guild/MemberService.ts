@@ -17,4 +17,8 @@ export default class MemberService {
   static giveRole(member: GuildMember, role: Role): void {
     member.roles.add(role);
   }
+
+  static removeRole(member: GuildMember, role: Role): void {
+    member.roles.remove(role);
+  }
 }
