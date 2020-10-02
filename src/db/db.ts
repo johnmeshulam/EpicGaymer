@@ -1,4 +1,4 @@
-import { MongoClient, MongoClientOptions, Db, Collection } from "mongodb";
+import { MongoClient, MongoClientOptions } from "mongodb";
 
 const CONNECTION_OPTIONS: MongoClientOptions = {
   useUnifiedTopology: true
