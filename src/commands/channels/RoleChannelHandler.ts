@@ -34,6 +34,11 @@ export class RoleChannelHandler {
         return;
       }
 
+      if (!GuildService.hasRole(message.guild, name)) {
+        message.reply(this.roleNotFoundMessage(message.guild));
+        return;
+      }
+
       if (!AllowedRoles.hasRole(name)) {
         message.react("🚫");
         return;
@@ -46,7 +51,7 @@ export class RoleChannelHandler {
 
       MemberService.giveRole(
         message.member,
-        GuildService.getRole(message.guild, AllowedRoles.getRoleName(name))
+        GuildService.getRole(message.guild, name)
       );
       message.react("👍");
     } catch (error) {
@@ -77,6 +82,13 @@ export class RoleChannelHandler {
 
   private static needRoleNameMessage =
     "Please type the name of the role you are requesting!";
+
+  private static roleNotFoundMessage(guild: Guild) {
+    return `Could not find that role! Please check ${GuildService.getChannel(
+      guild,
+      "rules"
+    ).toString()} for a list of available roles!`;
+  }
 
   private static needToAcceptText(guild: Guild): string {
     return `Please accept the rules before requesting a game role! After reading ${GuildService.getChannel(
