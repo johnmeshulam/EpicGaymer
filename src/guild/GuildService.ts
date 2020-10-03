@@ -38,4 +38,19 @@ export default class GuildService {
     if (!member) throw new MemberNotFoundException(name);
     return member;
   }
+
+  static createRole(guild: Guild, name: string): Promise<Role> {
+    const color = Math.floor(Math.random() * 16777215).toString(16);
+
+    return guild.roles.create({
+      data: {
+        name: name,
+        color: color,
+        hoist: false,
+        position: 5, //TODO: smarter positioning
+        permissions: "CHANGE_NICKNAME",
+        mentionable: true
+      }
+    });
+  }
 }
