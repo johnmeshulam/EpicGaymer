@@ -1,9 +1,9 @@
 import { Message, Guild } from "discord.js";
-import Config from "../../config";
-import GuildService from "../../guild/GuildService";
-import MemberService from "../../guild/MemberService";
-import AllowedRoles from "../../roles";
-import { parseCommand } from "../../textUtils";
+import Config from "../db/configuration/config";
+import GuildService from "../guild/GuildService";
+import MemberService from "../guild/MemberService";
+import AllowedRoles from "../db/roles/roles";
+import { parseCommand } from "../textUtils";
 
 export class RoleChannelHandler {
   public static handleMessage(message: Message): void {

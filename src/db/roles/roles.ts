@@ -1,6 +1,6 @@
-import RoleService from "./db/roles/RoleService";
-import { RoleNotFoundException } from "./exceptions";
-import { createRoleIdentifier } from "./textUtils";
+import RoleService from "./RoleService";
+import { RoleNotFoundException } from "../../exceptions";
+import { createRoleIdentifier } from "../../textUtils";
 
 export default class AllowedRoles {
   private static roles: Map<string, string>;

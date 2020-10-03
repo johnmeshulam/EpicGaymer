@@ -1,6 +1,7 @@
 import { Message } from "discord.js";
-import Config from "./config";
-import { RoleChannelHandler } from "./commands/channels/RoleChannelHandler";
+import Config from "../db/configuration/config";
+import { RoleChannelHandler } from "./RoleChannelHandler";
+import { ModerationChannelHandler } from "./ModerationChannelHandler";
 
 export class MessageHandler {
   static handle(message: Message): void {
@@ -11,6 +12,12 @@ export class MessageHandler {
     switch (message.channel.name) {
       case Config.getValue("role-channel"):
         RoleChannelHandler.handleMessage(message);
+        break;
+      case Config.getValue("moderation-channel"):
+        ModerationChannelHandler.handleMessage(message);
+        break;
+      default:
+        break;
     }
   }
 }

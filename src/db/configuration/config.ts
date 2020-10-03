@@ -1,4 +1,4 @@
-import ConfigurationService from "./db/configuration/ConfigurationService";
+import ConfigurationService from "./ConfigurationService";
 
 export default class Config {
   private static options: Map<string, string>;
