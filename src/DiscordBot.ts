@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import { MessageHandler } from "./MessageHandler";
+import { MessageHandler } from "./commands/MessageHandler";
 
 export class DiscordBot {
   private static instance: DiscordBot;
