@@ -1,7 +1,7 @@
 import { DiscordBot } from "./DiscordBot";
 import { DBManager } from "./db/db";
-import Config from "./config";
-import AllowedRoles from "./roles";
+import Config from "./db/configuration/config";
+import AllowedRoles from "./db/roles/roles";
 
 const bot = DiscordBot.getInstance();
 
