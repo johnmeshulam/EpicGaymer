@@ -18,4 +18,17 @@ export default class RoleService {
       return roles;
     });
   }
+
+  public delete(name: string): Promise<boolean> {
+    return this.manager
+      .delete(name)
+      .then((success) => {
+        return success;
+      })
+      .catch((error) => {
+        console.error(`Problem deleting role ${name} from the database!`);
+        console.log(error.stack);
+        return false;
+      });
+  }
 }
