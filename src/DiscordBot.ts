@@ -18,6 +18,7 @@ export class DiscordBot {
     this.client.on("ready", () => {
       if (this.client.user) {
         console.log(`Logged in as ${this.client.user.tag}!`);
+        //TODO: wait for setup to complete before performing operations on that guild
         this.setupGuilds(this.client);
       }
     });
@@ -44,7 +45,7 @@ export class DiscordBot {
     });
 
     this.client.on("rateLimit", (info) => {
-      console.error("I have hit my limit! Details:");
+      console.error("Rate limit! Details:");
       console.error(info);
     });
   }
@@ -69,7 +70,6 @@ export class DiscordBot {
       });
   }
 
-  //TODO: synchronously wait for this on startup
   async setupGuilds(client: Client): Promise<void> {
     const service = new GuildService();
     client.guilds.cache.forEach(async (guild) => {
