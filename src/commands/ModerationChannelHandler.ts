@@ -1,15 +1,12 @@
-import { Guild, Message, MessageReaction, User } from "discord.js";
-import Config from "../db/configuration/config";
+import { Guild, Message } from "discord.js";
+import Config from "../db/configuration/ConfigurationService.ts";
 import RoleService from "../db/roles/RoleService";
-import Roles from "../db/roles/roles";
-import GuildService from "../guild/GuildService";
-import MemberService from "../guild/MemberService";
-import AllowedRoles from "../db/roles/roles";
-import { parseCommand } from "../textUtils";
-import { ReplSet } from "mongodb";
+import GuildService from "../utils/GuildService";
+import MemberService from "../utils/MemberService";
+import { parseCommand } from "../utils/textUtils";
 
 export class ModerationChannelHandler {
-  private static RoleService = new RoleService();
+  private static roleService = new RoleService();
 
   public static handleMessage(message: Message): void {
     const content = parseCommand(message.content);
@@ -40,66 +37,27 @@ export class ModerationChannelHandler {
         return;
       }
 
-      if (GuildService.hasRole(message.guild, name)) {
-        if (AllowedRoles.hasRole(name)) {
-          message.reply(this.roleExistsText);
-          return;
-        }
-        message.reply(this.roleExistsInServerText);
-        //TODO reactions for yes no
+      if (GuildService.hasRole(guild, name)) {
+        message.reply(this.roleExistsText);
         return;
       }
 
-      if (AllowedRoles.hasRole(name)) {
-        message
-          .reply(this.roleIsRequestableButDeletedText(name))
-          .then((reply) => {
-            reply
-              .react("✅")
-              .then(() => reply.react("🚫"))
-              .then(() => {
-                reply
-                  .awaitReactions(this.reactionFilter, { max: 1, time: 15000 })
-                  .then((collected) => {
-                    const reaction = collected.first();
-
-                    if (!reaction) return;
-                    if (reaction.emoji.name === "✅") {
-                      this.RoleService.delete(name);
-                      //this should continue the code
-                    } else {
-                      return;
-                    }
-                  })
-                  .catch((collected) => {
-                    message.reply("Invalid reaction!");
-                  });
-              });
-          });
-      }
-
-      this.RoleService.add(name).then((success) => {
-        if (!success) {
+      GuildService.createRole(guild, name).then((role) => {
+        if (!role) {
           message.react("⚠");
           return;
         }
 
-        Roles.fetchValues().then((done) => {
-          //TODO: swap this out for update rules msg
-          GuildService.createRole(guild, name).then((role) => {
-            if (!role) {
+        this.roleService.createRole(role, true).then((success) => {
+          GuildService.createChannel(guild, name).then((channel) => {
+            if (!channel) {
               message.react("⚠");
               return;
             }
 
-            GuildService.createChannel(guild, name).then((channel) => {
-              if (!channel) {
-                message.react("⚠");
-                return;
-              }
-              message.react("👍");
-              return;
-            });
+            //TODO: update the rules mesage here
+            message.react("👍");
+            return;
           });
         });
       });
@@ -130,23 +88,25 @@ export class ModerationChannelHandler {
         return;
       }
 
-      //TODO: handle serrors and make this pretty
-      GuildService.deleteRole(guild, name).then((success) => {
-        GuildService.deleteChannel(guild, name).then((success) => {
-          if (AllowedRoles.hasRole(name)) {
-            this.RoleService.delete(name).then((success) => {
-              Roles.fetchValues().then((done) => {
-                //TODO: swap this out for update rules msg
+      GuildService.deleteRole(guild, name)
+        .then((role) => {
+          this.roleService.deleteRole(role).then((success) => {
+            GuildService.deleteChannel(guild, name)
+              .then((channel) => {
+                //TODO: update the rules message here
                 message.react("👍");
                 return;
+              })
+              .catch((error) => {
+                message.react("⚠");
+                return;
               });
-            });
-          } else {
-            message.react("👍");
-            return;
-          }
+          });
+        })
+        .catch((error) => {
+          message.react("⚠");
+          return;
         });
-      });
     } catch (error) {
       message.react("⚠");
       console.error(error.message);
@@ -154,31 +114,20 @@ export class ModerationChannelHandler {
     }
   }
 
-  private static reactionFilter(
-    reaction: MessageReaction,
-    user: User
-  ): boolean {
-    return ["✅", "🚫"].includes(reaction.emoji.name) && !user.bot;
-  }
-
   private static needToAcceptText(guild: Guild): string {
     return `Please accept the rules before using commannds! After reading ${GuildService.getChannel(
       guild,
       "rules"
-    ).toString()} type \`${Config.getValue("prefix")}accept\` to accept.`;
+    ).toString()} type \`${Config.getValue(
+      guild,
+      "prefix"
+    )}accept\` to accept.`;
   }
 
   private static noPermissionsText =
     "You do not have permission to perform this command!";
 
-  private static roleExistsText = "This role already exists!";
-
-  private static roleExistsInServerText =
-    "It seems like this role already exists! Do you want to allow requesting it?";
-
-  private static roleIsRequestableButDeletedText(name: string): string {
-    return `It seems like this role (or a smililarly named role) is already requestable. Proceeding will deny requesting of the other role(/s) and add the role  ${name} to the server. Continue?`;
-  }
+  private static roleExistsText = `This role already exists! If you want to allow requesting it, use \`+allow <roleName>\``;
 
   private static noRoleText = "Could not find that role!";
 }
