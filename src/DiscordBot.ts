@@ -1,5 +1,7 @@
 import { Client } from "discord.js";
 import { MessageHandler } from "./commands/MessageHandler";
+import GuildService from "./db/guilds/GuildService";
+import RoleEventHandler from "./utils/RoleEventHandler";
 
 export class DiscordBot {
   private static instance: DiscordBot;
@@ -14,12 +16,26 @@ export class DiscordBot {
     if (!this.client) return;
 
     this.client.on("ready", () => {
-      if (this.client.user)
+      if (this.client.user) {
         console.log(`Logged in as ${this.client.user.tag}!`);
+        this.setupGuilds(this.client);
+      }
     });
 
     this.client.on("message", (msg) => {
       MessageHandler.handle(msg);
+    });
+
+    this.client.on("roleCreate", (role) => {
+      RoleEventHandler.handleCreateEvent(role);
+    });
+
+    this.client.on("roleUpdate", (oldRole, newRole) => {
+      RoleEventHandler.handleUpdateEvent(newRole);
+    });
+
+    this.client.on("roleDelete", (role) => {
+      RoleEventHandler.handleDeleteEvent(role);
     });
 
     this.client.on("invalidated", () => {
@@ -51,5 +67,17 @@ export class DiscordBot {
         console.error(`Could not connect. Error: ${error.message}`);
         throw error;
       });
+  }
+
+  //TODO: synchronously wait for this on startup
+  async setupGuilds(client: Client): Promise<void> {
+    const service = new GuildService();
+    client.guilds.cache.forEach(async (guild) => {
+      service.get(guild).catch((error) => {
+        console.log("Setting up guild " + guild.id);
+        service.create(guild);
+      });
+    });
+    return;
   }
 }
