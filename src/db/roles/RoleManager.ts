@@ -38,7 +38,19 @@ export default class RoleManager extends CollectionManager {
     });
   }
 
+  public add(name: string): Promise<boolean> {
+    return this.getCollection().then((collection) => {
+      return collection
+        .insertOne({ identifier: createRoleIdentifier(name), name: name })
+        .then((result: InsertOneWriteOpResult<any>) => {
+          if (result.result.ok === 1) return true;
+          return false;
+        });
+    });
+  }
+
   public delete(name: string): Promise<boolean> {
+    //TODO: find out why this returns true when the object did not exist
     return this.getCollection().then((collection) => {
       return collection
         .deleteOne({ identifier: createRoleIdentifier(name) })
