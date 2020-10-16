@@ -1,11 +1,14 @@
-import { Message, Guild } from "discord.js";
+import { Message, Guild, Role } from "discord.js";
+import { request } from "http";
 import Config from "../db/configuration/config";
+import RoleService from "../db/roles/RoleService";
 import GuildService from "../guild/GuildService";
 import MemberService from "../guild/MemberService";
-import AllowedRoles from "../db/roles/roles";
 import { parseCommand } from "../textUtils";
 
 export class RoleChannelHandler {
+  static roleService = new RoleService();
+
   public static handleMessage(message: Message): void {
     const content = parseCommand(message.content);
     switch (content.command.toLowerCase()) {
@@ -42,25 +45,27 @@ export class RoleChannelHandler {
         return;
       }
 
-      if (!AllowedRoles.hasRole(name)) {
-        message.react("🚫");
-        return;
-      }
+      const role = GuildService.getRole(message.guild, name);
+      this.roleService.isRequestable(role.id).then((requestable) => {
+        if (!requestable) {
+          message.react("🚫");
+          return;
+        } else {
+          if (!message.member) return;
+          if (MemberService.hasRole(message.member, role)) {
+            message.reply(this.alreadyHasRoleText(role));
+            return;
+          }
 
-      if (MemberService.hasRole(message.member, name)) {
-        message.reply(this.alreadyHasRoleText(name));
-        return;
-      }
-
-      MemberService.giveRole(
-        message.member,
-        GuildService.getRole(message.guild, name)
-      );
-      message.react("👍");
+          MemberService.giveRole(message.member, role).then(() =>
+            message.react("👍")
+          );
+        }
+      });
     } catch (error) {
       message.react("⚠");
       console.error(error.message);
-      console.log(error.stack);
+      console.error(error.stack);
     }
   }
 
@@ -78,21 +83,24 @@ export class RoleChannelHandler {
         return;
       }
 
-      if (!MemberService.hasRole(message.member, name)) {
-        message.reply(this.doesNotHaveRoleText(name));
+      const role = GuildService.getRole(message.guild, name);
+
+      if (!MemberService.hasRole(message.member, role)) {
+        message.reply(this.doesNotHaveRoleText(role));
         return;
       }
 
-      if (!AllowedRoles.hasRole(name)) {
-        message.react("🚫");
-        return;
-      }
-
-      MemberService.removeRole(
-        message.member,
-        GuildService.getRole(message.guild, name)
-      );
-      message.react("👍");
+      this.roleService.isRequestable(role.id).then((requestable) => {
+        if (!requestable) {
+          message.react("🚫");
+          return;
+        } else {
+          if (!message.member) return;
+          MemberService.removeRole(message.member, role).then(() =>
+            message.react("👍")
+          );
+        }
+      });
     } catch (error) {
       message.react("⚠");
       console.error(error.message);
@@ -109,11 +117,11 @@ export class RoleChannelHandler {
         return;
       }
 
-      MemberService.giveRole(
-        message.member,
-        GuildService.getRole(message.guild, "member")
+      const memberRole = GuildService.getRole(message.guild, "member");
+
+      MemberService.giveRole(message.member, memberRole).then(() =>
+        message.react("👍")
       );
-      message.react("👍");
     } catch (error) {
       message.react("⚠");
       console.error(error.message);
@@ -137,12 +145,12 @@ export class RoleChannelHandler {
     ).toString()} type \`${Config.getValue("prefix")}accept\` to accept.`;
   }
 
-  private static alreadyHasRoleText(name: string): string {
-    return `You already have the role ${AllowedRoles.getRoleName(name)}!`;
+  private static alreadyHasRoleText(role: Role): string {
+    return `You already have the role ${role.name}!`;
   }
 
-  private static doesNotHaveRoleText(name: string): string {
-    return `You do not have the role ${name}!`;
+  private static doesNotHaveRoleText(role: Role): string {
+    return `You do not have the role ${role.name}!`;
   }
 
   private static alreadyAcceptedText = "You have already accepted the rules!";
