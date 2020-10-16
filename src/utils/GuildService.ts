@@ -1,5 +1,5 @@
-import { Guild, GuildChannel, GuildMember, Role } from "discord.js";
-import Config from "../db/configuration/config";
+import { Guild, Channel, GuildChannel, GuildMember, Role } from "discord.js";
+import Config from "../db/configuration/ConfigurationService.ts";
 import {
   ChannelNotFoundException,
   RoleNotFoundException,
@@ -76,41 +76,42 @@ export default class GuildService {
     });
   }
 
-  static deleteRole(guild: Guild, name: string): Promise<boolean> {
+  static deleteRole(guild: Guild, name: string): Promise<Role> {
     try {
       return this.getRole(guild, name)
         .delete()
         .then((role) => {
-          return true;
+          return role;
         })
         .catch((error) => {
-          console.log(`Failed to delete role ${name} from guild!`);
-          return false;
+          throw new Error(
+            `Error while deleting role ${name} from guild ${guild.name}`
+          );
         });
     } catch (error) {
-      console.log(error.message);
       return new Promise((resolve, reject) => {
-        resolve(false);
+        resolve(undefined);
       });
     }
   }
 
-  static deleteChannel(guild: Guild, name: string): Promise<boolean> {
+  static deleteChannel(guild: Guild, name: string): Promise<Channel> {
     const channelName: string = name.replace(/\s+/g, "-").toLowerCase();
+
     try {
       return this.getChannel(guild, channelName)
         .delete()
         .then((channel) => {
-          return true;
+          return channel;
         })
         .catch((error) => {
-          console.log(`Failed to delete channel ${channelName} from guild!`);
-          return false;
+          throw new Error(
+            `Error while deleting channel ${name} from guild ${guild.name}`
+          );
         });
     } catch (error) {
-      console.log(error.message);
       return new Promise((resolve, reject) => {
-        resolve(false);
+        resolve(undefined);
       });
     }
   }
