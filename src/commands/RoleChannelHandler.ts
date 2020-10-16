@@ -1,10 +1,9 @@
 import { Message, Guild, Role } from "discord.js";
-import { request } from "http";
-import Config from "../db/configuration/config";
+import Config from "../db/configuration/ConfigurationService.ts";
 import RoleService from "../db/roles/RoleService";
-import GuildService from "../guild/GuildService";
-import MemberService from "../guild/MemberService";
-import { parseCommand } from "../textUtils";
+import GuildService from "../utils/GuildService";
+import MemberService from "../utils/MemberService";
+import { parseCommand } from "../utils/textUtils";
 
 export class RoleChannelHandler {
   static roleService = new RoleService();
@@ -29,9 +28,10 @@ export class RoleChannelHandler {
   private static giveRoleCommand(message: Message, name: string): void {
     try {
       if (!message.member || !message.guild) return;
+      let guild = message.guild;
 
       if (!MemberService.hasMemberRole(message.member)) {
-        message.reply(this.needToAcceptText(message.guild));
+        message.reply(this.needToAcceptText(guild));
         return;
       }
 
@@ -40,13 +40,13 @@ export class RoleChannelHandler {
         return;
       }
 
-      if (!GuildService.hasRole(message.guild, name)) {
-        message.reply(this.roleNotFoundMessage(message.guild));
+      if (!GuildService.hasRole(guild, name)) {
+        message.reply(this.roleNotFoundMessage(guild));
         return;
       }
 
-      const role = GuildService.getRole(message.guild, name);
-      this.roleService.isRequestable(role.id).then((requestable) => {
+      const role = GuildService.getRole(guild, name);
+      this.roleService.isRequestable(role).then((requestable) => {
         if (!requestable) {
           message.react("🚫");
           return;
@@ -72,25 +72,26 @@ export class RoleChannelHandler {
   private static revokeRoleCommand(message: Message, name: string) {
     try {
       if (!message.member || !message.guild) return;
+      let guild = message.guild;
 
       if (!MemberService.hasMemberRole(message.member)) {
-        message.reply(this.needToAcceptText(message.guild));
+        message.reply(this.needToAcceptText(guild));
         return;
       }
 
-      if (!GuildService.hasRole(message.guild, name)) {
-        message.reply(this.roleNotFoundMessage(message.guild));
+      if (!GuildService.hasRole(guild, name)) {
+        message.reply(this.roleNotFoundMessage(guild));
         return;
       }
 
-      const role = GuildService.getRole(message.guild, name);
+      const role = GuildService.getRole(guild, name);
 
       if (!MemberService.hasRole(message.member, role)) {
         message.reply(this.doesNotHaveRoleText(role));
         return;
       }
 
-      this.roleService.isRequestable(role.id).then((requestable) => {
+      this.roleService.isRequestable(role).then((requestable) => {
         if (!requestable) {
           message.react("🚫");
           return;
@@ -111,13 +112,14 @@ export class RoleChannelHandler {
   private static acceptRulesCommand(message: Message) {
     try {
       if (!message.member || !message.guild) return;
+      let guild = message.guild;
 
       if (MemberService.hasMemberRole(message.member)) {
         message.reply(this.alreadyAcceptedText);
         return;
       }
 
-      const memberRole = GuildService.getRole(message.guild, "member");
+      const memberRole = GuildService.getRole(guild, "member");
 
       MemberService.giveRole(message.member, memberRole).then(() =>
         message.react("👍")
@@ -142,7 +144,10 @@ export class RoleChannelHandler {
     return `Please accept the rules before using commannds! After reading ${GuildService.getChannel(
       guild,
       "rules"
-    ).toString()} type \`${Config.getValue("prefix")}accept\` to accept.`;
+    ).toString()} type \`${Config.getValue(
+      guild,
+      "prefix"
+    )}accept\` to accept.`;
   }
 
   private static alreadyHasRoleText(role: Role): string {
