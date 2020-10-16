@@ -9,6 +9,6 @@ export function parseCommand(
   };
 }
 
-export function createRoleIdentifier(name: string): string {
+export function createRoleString(name: string): string {
   return name.toLowerCase().replace(/\s/g, "");
 }
