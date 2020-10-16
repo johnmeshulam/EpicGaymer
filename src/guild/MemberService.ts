@@ -1,24 +1,29 @@
 import { GuildMember, Role } from "discord.js";
-import { createRoleIdentifier } from "../textUtils";
 
 export default class MemberService {
-  static hasRole(member: GuildMember, name: string): boolean {
-    const role = member.roles.cache.find(
-      (role) => createRoleIdentifier(role.name) === createRoleIdentifier(name)
-    );
-    if (!role) return false;
-    return true;
+  static hasRole(member: GuildMember, role: Role): boolean {
+    if (member.roles.cache.has(role.id)) return true;
+    return false;
   }
 
   static hasMemberRole(member: GuildMember): boolean {
-    return this.hasRole(member, "member");
+    //TODO: make member role name variable
+    const memberRole = member.roles.cache.find(
+      (role) => role.name.toLowerCase() === "member"
+    );
+    if (memberRole) return true;
+    return false;
   }
 
-  static giveRole(member: GuildMember, role: Role): void {
-    member.roles.add(role);
+  static giveRole(member: GuildMember, role: Role): Promise<void> {
+    return member.roles.add(role).then(() => {
+      return;
+    });
   }
 
-  static removeRole(member: GuildMember, role: Role): void {
-    member.roles.remove(role);
+  static removeRole(member: GuildMember, role: Role): Promise<void> {
+    return member.roles.remove(role).then(() => {
+      return;
+    });
   }
 }
