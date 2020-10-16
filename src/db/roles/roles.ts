@@ -17,10 +17,11 @@ export default class AllowedRoles {
     return roleName;
   }
 
-  public static fetchValues(): void {
-    this.service.mapValues().then((result) => {
+  public static fetchValues(): Promise<boolean> {
+    return this.service.mapValues().then((result) => {
       this.roles = result;
       console.log("Fetched allowed roled from database!");
+      return true;
     });
   }
 }
