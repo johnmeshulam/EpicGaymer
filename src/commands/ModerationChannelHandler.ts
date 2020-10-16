@@ -1,4 +1,4 @@
-import { Guild, Message } from "discord.js";
+import { Guild, Message, MessageReaction, User } from "discord.js";
 import Config from "../db/configuration/config";
 import RoleService from "../db/roles/RoleService";
 import Roles from "../db/roles/roles";
@@ -6,6 +6,7 @@ import GuildService from "../guild/GuildService";
 import MemberService from "../guild/MemberService";
 import AllowedRoles from "../db/roles/roles";
 import { parseCommand } from "../textUtils";
+import { ReplSet } from "mongodb";
 
 export class ModerationChannelHandler {
   private static RoleService = new RoleService();
@@ -50,9 +51,31 @@ export class ModerationChannelHandler {
       }
 
       if (AllowedRoles.hasRole(name)) {
-        message.reply(this.roleIsRequestableButDeletedText(name));
-        //TODO: reactions for yes no
-        return;
+        message
+          .reply(this.roleIsRequestableButDeletedText(name))
+          .then((reply) => {
+            reply
+              .react("✅")
+              .then(() => reply.react("🚫"))
+              .then(() => {
+                reply
+                  .awaitReactions(this.reactionFilter, { max: 1, time: 15000 })
+                  .then((collected) => {
+                    const reaction = collected.first();
+
+                    if (!reaction) return;
+                    if (reaction.emoji.name === "✅") {
+                      this.RoleService.delete(name);
+                      //this should continue the code
+                    } else {
+                      return;
+                    }
+                  })
+                  .catch((collected) => {
+                    message.reply("Invalid reaction!");
+                  });
+              });
+          });
       }
 
       this.RoleService.add(name).then((success) => {
@@ -129,6 +152,13 @@ export class ModerationChannelHandler {
       console.error(error.message);
       console.log(error.stack);
     }
+  }
+
+  private static reactionFilter(
+    reaction: MessageReaction,
+    user: User
+  ): boolean {
+    return ["✅", "🚫"].includes(reaction.emoji.name) && !user.bot;
   }
 
   private static needToAcceptText(guild: Guild): string {
