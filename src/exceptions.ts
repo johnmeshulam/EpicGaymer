@@ -26,3 +26,9 @@ export class MemberNotFoundException extends NotFoundException {
     super("member", memberName);
   }
 }
+
+export class GuildNotFoundException extends NotFoundException {
+  constructor(guildName: string) {
+    super("guild", guildName);
+  }
+}
