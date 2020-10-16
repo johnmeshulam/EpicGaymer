@@ -21,6 +21,16 @@ export class DiscordBot {
     this.client.on("message", (msg) => {
       MessageHandler.handle(msg);
     });
+
+    this.client.on("invalidated", () => {
+      console.error("Client Invalidated!");
+      process.exit();
+    });
+
+    this.client.on("rateLimit", (info) => {
+      console.error("I have hit my limit! Details:");
+      console.error(info);
+    });
   }
 
   static getInstance(): DiscordBot {
