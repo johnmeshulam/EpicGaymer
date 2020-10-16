@@ -1,6 +1,6 @@
 import { DiscordBot } from "./DiscordBot";
 import { DBManager } from "./db/db";
-import Config from "./db/configuration/config";
+import Config from "./db/configuration/ConfigurationService.ts";
 
 const bot = DiscordBot.getInstance();
 
@@ -13,6 +13,6 @@ try {
 
 async function init() {
   await DBManager.getConnection();
-  await Config.fetchValues();
+  await Config.fetchAllValues();
   await bot.connect();
 }
