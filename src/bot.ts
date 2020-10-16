@@ -1,7 +1,6 @@
 import { DiscordBot } from "./DiscordBot";
 import { DBManager } from "./db/db";
 import Config from "./db/configuration/config";
-import AllowedRoles from "./db/roles/roles";
 
 const bot = DiscordBot.getInstance();
 
@@ -15,6 +14,5 @@ try {
 async function init() {
   await DBManager.getConnection();
   await Config.fetchValues();
-  await AllowedRoles.fetchValues();
   await bot.connect();
 }
