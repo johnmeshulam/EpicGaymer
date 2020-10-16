@@ -19,6 +19,19 @@ export default class RoleService {
     });
   }
 
+  public add(name: string): Promise<boolean> {
+    return this.manager
+      .add(name)
+      .then((success) => {
+        return success;
+      })
+      .catch((error) => {
+        console.error(`Problem adding role ${name} to the database!`);
+        console.log(error.stack);
+        return false;
+      });
+  }
+
   public delete(name: string): Promise<boolean> {
     return this.manager
       .delete(name)
