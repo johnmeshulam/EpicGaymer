@@ -1,5 +1,5 @@
 import { DeleteWriteOpResultObject, InsertOneWriteOpResult } from "mongodb";
-import { createRoleIdentifier } from "../../textUtils";
+import { createRoleIdentifier as createRoleName } from "../../textUtils";
 import { CollectionManager } from "../CollectionManager";
 import RoleEntry from "../../models/role";
 
@@ -17,20 +17,22 @@ export default class RoleManager extends CollectionManager {
     });
   }
 
-  public get(name: string): Promise<RoleEntry> {
+  public get(identifier: string): Promise<RoleEntry> {
     return this.getCollection().then((collection) => {
-      return collection
-        .findOne({ identifier: createRoleIdentifier(name) })
-        .then(this.mapDocToEntity);
+      return collection.findOne({ identifier }).then(this.mapDocToEntity);
     });
   }
 
-  public create(name: string): Promise<boolean> {
-    const identifier = createRoleIdentifier(name);
+  public create(
+    identifier: string,
+    displayName: string,
+    requestable: boolean = true
+  ): Promise<boolean> {
+    const name = createRoleName(displayName);
 
     return this.getCollection().then((collection) => {
       return collection
-        .insertOne({ name, identifier })
+        .insertOne({ identifier, requestable, name, displayName })
         .then((result: InsertOneWriteOpResult<any>) => {
           if (result.result.ok === 1) return true;
           return false;
@@ -38,22 +40,11 @@ export default class RoleManager extends CollectionManager {
     });
   }
 
-  public add(name: string): Promise<boolean> {
-    return this.getCollection().then((collection) => {
-      return collection
-        .insertOne({ identifier: createRoleIdentifier(name), name: name })
-        .then((result: InsertOneWriteOpResult<any>) => {
-          if (result.result.ok === 1) return true;
-          return false;
-        });
-    });
-  }
-
-  public delete(name: string): Promise<boolean> {
+  public delete(identifier: string): Promise<boolean> {
     //TODO: find out why this returns true when the object did not exist
     return this.getCollection().then((collection) => {
       return collection
-        .deleteOne({ identifier: createRoleIdentifier(name) })
+        .deleteOne({ identifier })
         .then((result: DeleteWriteOpResultObject) => {
           if (result.result.ok === 1) return true;
           return false;
