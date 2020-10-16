@@ -1,5 +1,4 @@
-import { Channel, Guild, GuildChannel, GuildMember, Role } from "discord.js";
-import { resolve } from "path";
+import { Guild, GuildChannel, GuildMember, Role } from "discord.js";
 import Config from "../db/configuration/config";
 import {
   ChannelNotFoundException,
@@ -57,7 +56,7 @@ export default class GuildService {
   }
 
   static createChannel(guild: Guild, name: string): Promise<GuildChannel> {
-    const category: string = Config.getValue("game-category");
+    const category: string = Config.getValue(guild, "game-category");
     const channelName: string = name.replace(/\s+/g, "-").toLowerCase();
 
     return guild.channels.create(channelName, {
