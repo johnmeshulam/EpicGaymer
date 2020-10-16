@@ -1,44 +1,79 @@
-import { Role } from "discord.js";
-import { Collection } from "discord.js";
+import { Role, Guild } from "discord.js";
+import { RoleNotFoundException } from "../../exceptions";
 import RoleEntry from "../../models/role";
-import RoleManager from "./RoleManager";
+import { createRoleString } from "../../utils/textUtils";
+import GuildService from "../guilds/GuildService";
 
 export default class RoleService {
-  //TODO: error handling for all of this
-  private manager: RoleManager;
+  private service: GuildService;
 
   public constructor() {
-    this.manager = new RoleManager();
+    this.service = new GuildService();
   }
 
-  public create(role: Role): Promise<boolean> {
-    return this.manager
-      .create(role.id, role.name)
-      .then((success) => {
-        return success;
-      })
-      .catch((error) => {
-        console.error(`Problem adding role ${role.name} to the database!`);
-        console.log(error.stack);
-        return false;
-      });
+  public getAllRoles(guild: Guild): Promise<Array<RoleEntry>> {
+    return this.service.get(guild).then((entry) => {
+      return entry.roles;
+    });
   }
 
-  public delete(role: Role): Promise<boolean> {
-    return this.manager
-      .delete(role.id)
-      .then((success) => {
-        return success;
-      })
-      .catch((error) => {
-        console.error(`Problem deleting role ${role.name} from the database!`);
-        console.log(error.stack);
-        return false;
-      });
+  public getRole(guild: Guild, identifier: string): Promise<RoleEntry> {
+    return this.service.get(guild).then((entry) => {
+      const role = entry.roles.find((role) => role.identifier === identifier);
+      if (!role) throw new RoleNotFoundException(identifier);
+      return role;
+    });
   }
 
-  public isRequestable(identifier: string): Promise<boolean> {
-    return this.manager.get(identifier).then((role) => {
+  public async createRole(
+    role: Role,
+    requestable: boolean = false
+  ): Promise<boolean> {
+    const guildEntry = await this.service.get(role.guild);
+
+    guildEntry.roles.push({
+      identifier: role.id,
+      requestable: requestable,
+      displayName: role.name,
+      name: createRoleString(role.name)
+    });
+
+    return this.service.update(guildEntry).then((success) => {
+      return success;
+    });
+  }
+
+  public async updateRole(role: Role, requestable?: boolean): Promise<boolean> {
+    const guildEntry = await this.service.get(role.guild);
+
+    const updateIndex = guildEntry.roles.findIndex(
+      (roleItem) => roleItem.identifier === role.id
+    );
+    guildEntry.roles[updateIndex].displayName = role.name;
+    guildEntry.roles[updateIndex].name = createRoleString(role.name);
+
+    if (!(requestable === undefined))
+      guildEntry.roles[updateIndex].requestable = requestable;
+
+    return this.service.update(guildEntry).then((success) => {
+      return success;
+    });
+  }
+
+  public async deleteRole(role: Role): Promise<boolean> {
+    const guildEntry = await this.service.get(role.guild);
+    guildEntry.roles.splice(
+      guildEntry.roles.findIndex((roleItem) => roleItem.identifier === role.id),
+      1
+    );
+
+    return this.service.update(guildEntry).then((success) => {
+      return success;
+    });
+  }
+
+  public isRequestable(role: Role): Promise<boolean> {
+    return this.getRole(role.guild, role.id).then((role) => {
       return role.requestable;
     });
   }
