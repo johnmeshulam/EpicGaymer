@@ -25,7 +25,7 @@ export class RoleChannelHandler {
 
   private static giveRoleCommand(message: Message, name: string): void {
     try {
-      if (!message.member || !message.guild) return; //Need this for strong types even though its checked before
+      if (!message.member || !message.guild) return;
 
       if (!MemberService.hasMemberRole(message.member)) {
         message.reply(this.needToAcceptText(message.guild));
