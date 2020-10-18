@@ -1,4 +1,4 @@
-import { Guild, Message } from "discord.js";
+import { Guild, Message, PermissionResolvable } from "discord.js";
 import Config from "../db/configuration/ConfigurationService.ts";
 import RoleService from "../db/roles/RoleService";
 import GuildService from "../utils/GuildService";
@@ -17,8 +17,56 @@ export class ModerationChannelHandler {
       case "delrole":
         this.deleteRoleCommand(message, content.args);
         break;
+      case "allow":
+        this.allowOrDenyRoleCommand(message, content.args, true);
+        break;
+      case "deny":
+        this.allowOrDenyRoleCommand(message, content.args, false);
+        break;
       default:
         break;
+    }
+  }
+
+  public static async allowOrDenyRoleCommand(
+    message: Message,
+    name: string,
+    allow: boolean
+  ) {
+    try {
+      if (!message.member || !message.guild) return;
+      let guild = message.guild;
+
+      if (!this.premissionCheck(message, "MANAGE_ROLES")) return;
+
+      if (!GuildService.hasRole(guild, name)) {
+        message.reply(this.noRoleText);
+        return;
+      }
+
+      const role = await GuildService.getRole(guild, name);
+      const currentState = await this.roleService.isRequestable(role);
+
+      if (allow === currentState) {
+        if (allow) message.reply(this.alreadyAllowedText);
+        else message.reply(this.alreadyDeniedText);
+        return;
+      }
+
+      this.roleService
+        .updateRequestable(role, allow)
+        .then((success) => {
+          message.react("👍");
+          return;
+        })
+        .catch((error) => {
+          message.react("⚠");
+          return;
+        });
+    } catch (error) {
+      message.react("⚠");
+      console.error(error.message);
+      console.log(error.stack);
     }
   }
 
@@ -27,15 +75,7 @@ export class ModerationChannelHandler {
       if (!message.member || !message.guild) return;
       let guild = message.guild;
 
-      if (!MemberService.hasMemberRole(message.member)) {
-        message.reply(this.needToAcceptText(message.guild));
-        return;
-      }
-
-      if (!message.member.permissions.has("MANAGE_ROLES")) {
-        message.reply(this.noPermissionsText);
-        return;
-      }
+      if (!this.premissionCheck(message, "MANAGE_ROLES")) return;
 
       if (GuildService.hasRole(guild, name)) {
         message.reply(this.roleExistsText);
@@ -73,15 +113,7 @@ export class ModerationChannelHandler {
       if (!message.member || !message.guild) return;
       let guild = message.guild;
 
-      if (!MemberService.hasMemberRole(message.member)) {
-        message.reply(this.needToAcceptText(message.guild));
-        return;
-      }
-
-      if (!message.member.permissions.has("MANAGE_ROLES")) {
-        message.reply(this.noPermissionsText);
-        return;
-      }
+      if (!this.premissionCheck(message, "MANAGE_ROLES")) return;
 
       if (!GuildService.hasRole(guild, name)) {
         message.reply(this.noRoleText);
@@ -114,6 +146,25 @@ export class ModerationChannelHandler {
     }
   }
 
+  private static premissionCheck(
+    message: Message,
+    permissions: PermissionResolvable
+  ): boolean {
+    if (!message.member || !message.guild) return false;
+
+    if (!MemberService.hasMemberRole(message.member)) {
+      message.reply(this.needToAcceptText(message.guild));
+      return false;
+    }
+
+    if (!message.member.permissions.has(permissions)) {
+      message.reply(this.noPermissionsText);
+      return false;
+    }
+
+    return true;
+  }
+
   private static needToAcceptText(guild: Guild): string {
     return `Please accept the rules before using commannds! After reading ${GuildService.getChannel(
       guild,
@@ -130,4 +181,8 @@ export class ModerationChannelHandler {
   private static roleExistsText = `This role already exists! If you want to allow requesting it, use \`+allow <roleName>\``;
 
   private static noRoleText = "Could not find that role!";
+
+  private static alreadyAllowedText = "This role is already allowed!";
+
+  private static alreadyDeniedText = "This role is already denied!";
 }
