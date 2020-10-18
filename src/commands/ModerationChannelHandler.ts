@@ -1,6 +1,6 @@
 import { Guild, Message, PermissionResolvable } from "discord.js";
-import Config from "../db/configuration/ConfigurationService.ts";
-import RoleService from "../db/roles/RoleService";
+import Config from "../db/services/ConfigurationService.ts";
+import RoleService from "../db/services/RoleService";
 import GuildService from "../utils/GuildService";
 import MemberService from "../utils/MemberService";
 import { parseCommand } from "../utils/textUtils";

@@ -1,5 +1,5 @@
 import { Guild, Channel, GuildChannel, GuildMember, Role } from "discord.js";
-import Config from "../db/configuration/ConfigurationService.ts";
+import Config from "../db/services/ConfigurationService.ts";
 import {
   ChannelNotFoundException,
   RoleNotFoundException,

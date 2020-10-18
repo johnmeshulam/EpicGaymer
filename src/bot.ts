@@ -1,6 +1,6 @@
 import { DiscordBot } from "./DiscordBot";
 import { DBManager } from "./db/db";
-import Config from "./db/configuration/ConfigurationService.ts";
+import Config from "./db/services/ConfigurationService.ts";
 
 const bot = DiscordBot.getInstance();
 

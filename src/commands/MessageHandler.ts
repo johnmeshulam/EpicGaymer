@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import Config from "../db/configuration/ConfigurationService.ts";
+import Config from "../db/services/ConfigurationService.ts";
 import { RoleChannelHandler } from "./RoleChannelHandler";
 import { ModerationChannelHandler } from "./ModerationChannelHandler";
 

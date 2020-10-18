@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 import { MessageHandler } from "./commands/MessageHandler";
-import Config from "./db/configuration/ConfigurationService.ts";
+import Config from "./db/services/ConfigurationService.ts";
 import GuildService from "./db/guilds/GuildService";
 import RoleEventHandler from "./utils/RoleEventHandler";
 

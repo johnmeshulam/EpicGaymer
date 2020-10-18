@@ -1,5 +1,5 @@
 import { Role } from "discord.js";
-import RoleService from "../db/roles/RoleService";
+import RoleService from "../db/services/RoleService";
 
 export default class RoleEventHandler {
   private static service = new RoleService();
