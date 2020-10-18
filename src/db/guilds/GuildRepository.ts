@@ -36,7 +36,7 @@ export default class GuildRepository extends Repository {
   ): Promise<boolean> {
     return this.getCollection().then((collection) => {
       return collection
-        .insertOne({ identifier, roles, configuration })
+        .insertOne({ identifier, roles, configuration, rules })
         .then((result: InsertOneWriteOpResult<any>) => {
           if (result.result.ok === 1) return true;
           return false;

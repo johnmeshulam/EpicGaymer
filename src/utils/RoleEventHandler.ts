@@ -4,17 +4,28 @@ import RuleMessageService from "./RuleMessageService";
 
 export default class RoleEventHandler {
   private static service = new RoleService();
+  private static locked = false;
 
   public static handleDeleteEvent(role: Role) {
-    this.service.deleteRole(role);
-    RuleMessageService.update(role.guild);
+    if (!this.locked) {
+      this.service.deleteRole(role);
+      RuleMessageService.update(role.guild);
+    }
   }
 
   public static handleUpdateEvent(role: Role) {
-    this.service.updateRole(role);
+    if (!this.locked) this.service.updateRole(role);
   }
 
   public static handleCreateEvent(role: Role) {
-    this.service.createRole(role);
+    if (!this.locked) this.service.createRole(role);
+  }
+
+  public static lock() {
+    this.locked = true;
+  }
+
+  public static unlock() {
+    this.locked = false;
   }
 }

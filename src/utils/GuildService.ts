@@ -17,12 +17,17 @@ import {
 
 export default class GuildService {
   static getTextChannel(guild: Guild, name: string): TextChannel {
+    const channel = this.getChannel(guild, name);
+    if (channel instanceof TextChannel) return channel;
+    throw new TypeError("Channel is not a text channel!");
+  }
+
+  static getChannel(guild: Guild, name: string): GuildChannel {
     const channel = guild.channels.cache.find(
       (channel) => channel.name === name
     );
     if (!channel) throw new ChannelNotFoundException(name);
-    if (channel instanceof TextChannel) return channel;
-    throw new TypeError("Channel is not a text channel!");
+    return channel;
   }
 
   static getMessage(channel: TextChannel, messageId: string): Promise<Message> {
@@ -80,7 +85,7 @@ export default class GuildService {
 
     return guild.channels.create(channelName, {
       type: "text",
-      parent: this.getTextChannel(guild, category),
+      parent: this.getChannel(guild, category),
       permissionOverwrites: [
         {
           id: this.getRole(guild, name).id,

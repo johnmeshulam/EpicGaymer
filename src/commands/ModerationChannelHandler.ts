@@ -3,6 +3,7 @@ import Config from "../db/services/ConfigurationService.ts";
 import RoleService from "../db/services/RoleService";
 import GuildService from "../utils/GuildService";
 import MemberService from "../utils/MemberService";
+import RoleEventHandler from "../utils/RoleEventHandler";
 import RuleMessageService from "../utils/RuleMessageService";
 import { parseCommand } from "../utils/textUtils";
 
@@ -77,19 +78,21 @@ export class ModerationChannelHandler {
       return;
     }
 
+    RoleEventHandler.lock();
     GuildService.createRole(guild, name).then((role) => {
+      RoleEventHandler.unlock();
       if (!role) {
         message.react("⚠");
         return;
       }
 
       this.roleService.createRole(role, true).then((success) => {
+        RuleMessageService.update(guild);
         GuildService.createChannel(guild, name).then((channel) => {
           if (!channel) {
             message.react("⚠");
             return;
           }
-          RuleMessageService.update(guild);
           message.react("👍");
           return;
         });
@@ -108,12 +111,14 @@ export class ModerationChannelHandler {
       return;
     }
 
+    RoleEventHandler.lock();
     GuildService.deleteRole(guild, name)
       .then((role) => {
+        RoleEventHandler.unlock();
         this.roleService.deleteRole(role).then((success) => {
+          RuleMessageService.update(guild);
           GuildService.deleteChannel(guild, name)
             .then((channel) => {
-              RuleMessageService.update(guild);
               message.react("👍");
               return;
             })
@@ -124,6 +129,7 @@ export class ModerationChannelHandler {
         });
       })
       .catch((error) => {
+        RoleEventHandler.unlock();
         message.react("⚠");
         return;
       });

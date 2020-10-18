@@ -29,7 +29,8 @@ export default class RuleMessageService {
 
     return service.getAllRoles(guild).then((roles) => {
       for (const role of roles) {
-        if (role.requestable) content = content.concat("✅" + role.displayName);
+        if (role.requestable)
+          content = content.concat("✅" + role.displayName + "\n");
       }
       content = content.concat(this.endContent(guild));
       return content;
@@ -41,7 +42,10 @@ export default class RuleMessageService {
 
   private static endContent(guild: Guild): string {
     const prefix = Config.getValue(guild, "prefix");
-    return `\nTo accept the rules, type \`${prefix}accept\` in \`#role-requests\`
+    return `\n\nTo accept the rules, type \`${prefix}accept\` in ${GuildService.getTextChannel(
+      guild,
+      Config.getValue(guild, "role-channel")
+    ).toString()}
   To request a game role, type \`${prefix}give <ROLENAME>\`
   To remove a game role, type \`${prefix}revoke <ROLENAME>\``;
   }
