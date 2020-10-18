@@ -3,12 +3,12 @@ import {
   FindAndModifyWriteOpResultObject,
   InsertOneWriteOpResult
 } from "mongodb";
-import { CollectionManager } from "../CollectionManager";
+import { Repository } from "../Repository";
 import RoleEntry from "../../models/role";
 import GuildEntry from "../../models/guild";
 import ConfigurationEntry from "../../models/config";
 
-export default class GuildManager extends CollectionManager {
+export default class GuildRepository extends Repository {
   public constructor() {
     super("guilds");
   }

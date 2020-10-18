@@ -1,7 +1,7 @@
 import { Collection } from "mongodb";
 import { DBManager } from "./db";
 
-export class CollectionManager {
+export class Repository {
   private readonly collectionName: string;
 
   constructor(collectionName: string) {
