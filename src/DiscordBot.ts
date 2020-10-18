@@ -1,5 +1,6 @@
 import { Client } from "discord.js";
 import { MessageHandler } from "./commands/MessageHandler";
+import Config from "./db/configuration/ConfigurationService.ts";
 import GuildService from "./db/guilds/GuildService";
 import RoleEventHandler from "./utils/RoleEventHandler";
 
@@ -70,14 +71,15 @@ export class DiscordBot {
       });
   }
 
-  async setupGuilds(client: Client): Promise<void> {
+  setupGuilds(client: Client): void {
     const service = new GuildService();
-    client.guilds.cache.forEach(async (guild) => {
+    client.guilds.cache.forEach((guild) => {
       service.get(guild).catch((error) => {
         console.log("Setting up guild " + guild.id);
-        service.create(guild);
+        service.create(guild).then((success) => {
+          Config.fetchValues(guild).then(() => console.log("SETUP DONE"));
+        });
       });
     });
-    return;
   }
 }
