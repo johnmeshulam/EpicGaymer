@@ -26,108 +26,91 @@ export class RoleChannelHandler {
   }
 
   private static giveRoleCommand(message: Message, name: string): void {
-    try {
-      if (!message.member || !message.guild) return;
-      let guild = message.guild;
+    if (!message.member || !message.guild) return;
+    let guild = message.guild;
 
-      if (!MemberService.hasMemberRole(message.member)) {
-        message.reply(this.needToAcceptText(guild));
-        return;
-      }
-
-      if (!name) {
-        message.reply(this.needRoleNameMessage);
-        return;
-      }
-
-      if (!GuildService.hasRole(guild, name)) {
-        message.reply(this.roleNotFoundMessage(guild));
-        return;
-      }
-
-      const role = GuildService.getRole(guild, name);
-      this.roleService.isRequestable(role).then((requestable) => {
-        if (!requestable) {
-          message.react("🚫");
-          return;
-        } else {
-          if (!message.member) return;
-          if (MemberService.hasRole(message.member, role)) {
-            message.reply(this.alreadyHasRoleText(role));
-            return;
-          }
-
-          MemberService.giveRole(message.member, role).then(() =>
-            message.react("👍")
-          );
-        }
-      });
-    } catch (error) {
-      message.react("⚠");
-      console.error(error.message);
-      console.error(error.stack);
+    if (!MemberService.hasMemberRole(message.member)) {
+      message.reply(this.needToAcceptText(guild));
+      return;
     }
+
+    if (!name) {
+      message.reply(this.needRoleNameMessage);
+      return;
+    }
+
+    if (!GuildService.hasRole(guild, name)) {
+      message.reply(this.roleNotFoundMessage(guild));
+      return;
+    }
+
+    const role = GuildService.getRole(guild, name);
+    this.roleService.isRequestable(role).then((requestable) => {
+      if (!requestable) {
+        message.react("🚫");
+        return;
+      } else {
+        if (!message.member) return;
+        if (MemberService.hasRole(message.member, role)) {
+          message.reply(this.alreadyHasRoleText(role));
+          return;
+        }
+
+        MemberService.giveRole(message.member, role).then(() =>
+          message.react("👍")
+        );
+      }
+    });
   }
 
   private static revokeRoleCommand(message: Message, name: string) {
-    try {
-      if (!message.member || !message.guild) return;
-      let guild = message.guild;
+    if (!message.member || !message.guild) return;
+    let guild = message.guild;
 
-      if (!MemberService.hasMemberRole(message.member)) {
-        message.reply(this.needToAcceptText(guild));
-        return;
-      }
-
-      if (!GuildService.hasRole(guild, name)) {
-        message.reply(this.roleNotFoundMessage(guild));
-        return;
-      }
-
-      const role = GuildService.getRole(guild, name);
-
-      if (!MemberService.hasRole(message.member, role)) {
-        message.reply(this.doesNotHaveRoleText(role));
-        return;
-      }
-
-      this.roleService.isRequestable(role).then((requestable) => {
-        if (!requestable) {
-          message.react("🚫");
-          return;
-        } else {
-          if (!message.member) return;
-          MemberService.removeRole(message.member, role).then(() =>
-            message.react("👍")
-          );
-        }
-      });
-    } catch (error) {
-      message.react("⚠");
-      console.error(error.message);
-      console.log(error.stack);
+    if (!MemberService.hasMemberRole(message.member)) {
+      message.reply(this.needToAcceptText(guild));
+      return;
     }
+
+    if (!GuildService.hasRole(guild, name)) {
+      message.reply(this.roleNotFoundMessage(guild));
+      return;
+    }
+
+    const role = GuildService.getRole(guild, name);
+
+    if (!MemberService.hasRole(message.member, role)) {
+      message.reply(this.doesNotHaveRoleText(role));
+      return;
+    }
+
+    this.roleService.isRequestable(role).then((requestable) => {
+      if (!requestable) {
+        message.react("🚫");
+        return;
+      } else {
+        if (!message.member) return;
+        MemberService.removeRole(message.member, role).then(() =>
+          message.react("👍")
+        );
+      }
+    });
   }
 
   private static acceptRulesCommand(message: Message) {
-    try {
-      if (!message.member || !message.guild) return;
-      let guild = message.guild;
+    if (!message.member || !message.guild) return;
+    let guild = message.guild;
 
-      if (MemberService.hasMemberRole(message.member)) {
-        message.reply(this.alreadyAcceptedText);
-        return;
-      }
-
-      const memberRole = GuildService.getRole(guild, "member");
-
-      MemberService.giveRole(message.member, memberRole).then(() =>
-        message.react("👍")
-      );
-    } catch (error) {
-      message.react("⚠");
-      console.error(error.message);
+    if (MemberService.hasMemberRole(message.member)) {
+      message.reply(this.alreadyAcceptedText);
+      return;
     }
+
+    const memberRole = GuildService.getRole(guild, "member");
+
+    MemberService.giveRole(message.member, memberRole).then(() =>
+      message.react("👍")
+    );
   }
 
   private static needRoleNameMessage =
