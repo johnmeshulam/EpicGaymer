@@ -5,7 +5,7 @@ import {
 } from "mongodb";
 import { Repository } from "../Repository";
 import RoleEntry from "../../models/role";
-import GuildEntry from "../../models/guild";
+import GuildEntry, { RulesEntry } from "../../models/guild";
 import ConfigurationEntry from "../../models/config";
 
 export default class GuildRepository extends Repository {
@@ -31,7 +31,8 @@ export default class GuildRepository extends Repository {
   public create(
     identifier: string,
     roles: Array<RoleEntry>,
-    configuration: Array<ConfigurationEntry>
+    configuration: Array<ConfigurationEntry>,
+    rules: RulesEntry
   ): Promise<boolean> {
     return this.getCollection().then((collection) => {
       return collection

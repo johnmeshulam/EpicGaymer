@@ -1,7 +1,7 @@
 import { Guild } from "discord.js";
 import { GuildNotFoundException } from "../../exceptions";
 import { defaultConfiguration } from "../../models/config";
-import GuildEntry from "../../models/guild";
+import GuildEntry, { RulesEntry } from "../../models/guild";
 import RoleEntry from "../../models/role";
 import { createRoleString } from "../../utils/textUtils";
 import GuildRepository from "./GuildRepository";
@@ -28,6 +28,7 @@ export default class GuildService {
     const identifier = guild.id;
     let roles: Array<RoleEntry> = [];
     const configuration = defaultConfiguration;
+    const rules = defaultRules;
 
     guild.roles.cache.forEach((role) => {
       roles.push({
@@ -39,7 +40,7 @@ export default class GuildService {
     });
 
     return this.manager
-      .create(identifier, roles, configuration)
+      .create(identifier, roles, configuration, rules)
       .then((success) => {
         return success;
       })
@@ -75,4 +76,9 @@ export default class GuildService {
         return false;
       });
   }
+
+  private defaultRules: RulesEntry = {
+    channel: "rules",
+    messageId: ""
+  };
 }
