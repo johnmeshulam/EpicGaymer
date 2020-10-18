@@ -4,13 +4,13 @@ import { defaultConfiguration } from "../../models/config";
 import GuildEntry from "../../models/guild";
 import RoleEntry from "../../models/role";
 import { createRoleString } from "../../utils/textUtils";
-import GuildManager from "./GuildManager";
+import GuildRepository from "./GuildRepository";
 
 export default class GuildService {
-  private manager: GuildManager;
+  private manager: GuildRepository;
 
   public constructor() {
-    this.manager = new GuildManager();
+    this.manager = new GuildRepository();
   }
 
   public getAll(): Promise<Array<GuildEntry>> {
