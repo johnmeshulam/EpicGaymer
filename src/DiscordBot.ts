@@ -3,6 +3,7 @@ import { MessageHandler } from "./commands/MessageHandler";
 import Config from "./db/services/ConfigurationService.ts";
 import GuildService from "./db/guilds/GuildService";
 import RoleEventHandler from "./utils/RoleEventHandler";
+import RuleMessageService from "./utils/RuleMessageService";
 
 export class DiscordBot {
   private static instance: DiscordBot;
@@ -78,6 +79,7 @@ export class DiscordBot {
         console.log("Setting up guild " + guild.id);
         service.create(guild).then((success) => {
           Config.fetchValues(guild).then(() => {
+            RuleMessageService.update(guild);
             console.log("SETUP DONE");
           });
         });
