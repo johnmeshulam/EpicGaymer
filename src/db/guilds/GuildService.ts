@@ -28,7 +28,7 @@ export default class GuildService {
     const identifier = guild.id;
     let roles: Array<RoleEntry> = [];
     const configuration = defaultConfiguration;
-    const rules = defaultRules;
+    const rules = this.defaultRules;
 
     guild.roles.cache.forEach((role) => {
       roles.push({
