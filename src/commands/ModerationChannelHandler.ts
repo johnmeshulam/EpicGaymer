@@ -3,6 +3,7 @@ import Config from "../db/services/ConfigurationService.ts";
 import RoleService from "../db/services/RoleService";
 import GuildService from "../utils/GuildService";
 import MemberService from "../utils/MemberService";
+import RuleMessageService from "../utils/RuleMessageService";
 import { parseCommand } from "../utils/textUtils";
 
 export class ModerationChannelHandler {
@@ -55,6 +56,7 @@ export class ModerationChannelHandler {
     this.roleService
       .updateRequestable(role, allow)
       .then((success) => {
+        RuleMessageService.update(guild);
         message.react("👍");
         return;
       })
@@ -87,8 +89,7 @@ export class ModerationChannelHandler {
             message.react("⚠");
             return;
           }
-
-          //TODO: update the rules mesage here
+          RuleMessageService.update(guild);
           message.react("👍");
           return;
         });
@@ -112,7 +113,7 @@ export class ModerationChannelHandler {
         this.roleService.deleteRole(role).then((success) => {
           GuildService.deleteChannel(guild, name)
             .then((channel) => {
-              //TODO: update the rules message here
+              RuleMessageService.update(guild);
               message.react("👍");
               return;
             })
@@ -148,7 +149,7 @@ export class ModerationChannelHandler {
   }
 
   private static needToAcceptText(guild: Guild): string {
-    return `Please accept the rules before using commannds! After reading ${GuildService.getChannel(
+    return `Please accept the rules before using commannds! After reading ${GuildService.getTextChannel(
       guild,
       "rules"
     ).toString()} type \`${Config.getValue(

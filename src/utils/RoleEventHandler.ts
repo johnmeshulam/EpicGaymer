@@ -1,12 +1,13 @@
 import { Role } from "discord.js";
 import RoleService from "../db/services/RoleService";
+import RuleMessageService from "./RuleMessageService";
 
 export default class RoleEventHandler {
   private static service = new RoleService();
 
   public static handleDeleteEvent(role: Role) {
     this.service.deleteRole(role);
-    //TODO: update rules msg
+    RuleMessageService.update(role.guild);
   }
 
   public static handleUpdateEvent(role: Role) {
