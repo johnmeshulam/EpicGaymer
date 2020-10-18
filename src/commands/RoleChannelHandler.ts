@@ -117,14 +117,14 @@ export class RoleChannelHandler {
     "Please type the name of the role you are requesting!";
 
   private static roleNotFoundMessage(guild: Guild) {
-    return `Could not find that role! Please check ${GuildService.getChannel(
+    return `Could not find that role! Please check ${GuildService.getTextChannel(
       guild,
       "rules"
     ).toString()} for a list of available roles!`;
   }
 
   private static needToAcceptText(guild: Guild): string {
-    return `Please accept the rules before using commannds! After reading ${GuildService.getChannel(
+    return `Please accept the rules before using commannds! After reading ${GuildService.getTextChannel(
       guild,
       "rules"
     ).toString()} type \`${Config.getValue(

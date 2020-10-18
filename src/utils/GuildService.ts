@@ -1,18 +1,37 @@
-import { Guild, Channel, GuildChannel, GuildMember, Role } from "discord.js";
+import {
+  Guild,
+  Channel,
+  GuildChannel,
+  GuildMember,
+  Role,
+  TextChannel,
+  Message
+} from "discord.js";
 import Config from "../db/services/ConfigurationService.ts";
 import {
   ChannelNotFoundException,
   RoleNotFoundException,
-  MemberNotFoundException
+  MemberNotFoundException,
+  NotFoundException
 } from "../exceptions";
 
 export default class GuildService {
-  static getChannel(guild: Guild, name: string): GuildChannel {
+  static getTextChannel(guild: Guild, name: string): TextChannel {
     const channel = guild.channels.cache.find(
       (channel) => channel.name === name
     );
     if (!channel) throw new ChannelNotFoundException(name);
-    return channel;
+    if (channel instanceof TextChannel) return channel;
+    throw new TypeError("Channel is not a text channel!");
+  }
+
+  static getMessage(channel: TextChannel, messageId: string): Promise<Message> {
+    return new Promise((resolve, reject) => {
+      channel.messages
+        .fetch(messageId)
+        .then((message) => resolve(message))
+        .catch((err) => reject(new NotFoundException("message", messageId)));
+    });
   }
 
   static hasRole(guild: Guild, name: string): boolean {
@@ -61,7 +80,7 @@ export default class GuildService {
 
     return guild.channels.create(channelName, {
       type: "text",
-      parent: this.getChannel(guild, category),
+      parent: this.getTextChannel(guild, category),
       permissionOverwrites: [
         {
           id: this.getRole(guild, name).id,
@@ -99,7 +118,7 @@ export default class GuildService {
     const channelName: string = name.replace(/\s+/g, "-").toLowerCase();
 
     try {
-      return this.getChannel(guild, channelName)
+      return this.getTextChannel(guild, channelName)
         .delete()
         .then((channel) => {
           return channel;
