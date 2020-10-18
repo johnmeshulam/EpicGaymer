@@ -1,4 +1,4 @@
-import { Guild, Role } from "discord.js";
+import { Role } from "discord.js";
 import RoleService from "../db/roles/RoleService";
 
 export default class RoleEventHandler {
@@ -11,11 +11,9 @@ export default class RoleEventHandler {
 
   public static handleUpdateEvent(role: Role) {
     this.service.updateRole(role);
-    //TODO: update rules msg
   }
 
   public static handleCreateEvent(role: Role) {
     this.service.createRole(role);
-    //TODO: update rules msg
   }
 }
