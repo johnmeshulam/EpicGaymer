@@ -72,6 +72,22 @@ export default class RoleService {
     });
   }
 
+  public async updateRequestable(
+    role: Role,
+    requestable: boolean
+  ): Promise<boolean> {
+    const guildEntry = await this.service.get(role.guild);
+
+    const updateIndex = guildEntry.roles.findIndex(
+      (roleItem) => roleItem.identifier === role.id
+    );
+    guildEntry.roles[updateIndex].requestable = requestable;
+
+    return this.service.update(guildEntry).then((success) => {
+      return success;
+    });
+  }
+
   public isRequestable(role: Role): Promise<boolean> {
     return this.getRole(role.guild, role.id).then((role) => {
       return role.requestable;
