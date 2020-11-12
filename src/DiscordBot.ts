@@ -61,7 +61,7 @@ export class DiscordBot {
 
   async connect(): Promise<void> {
     return this.client
-      .login(process.env.DEV_TOKEN)
+      .login(process.env.BOT_TOKEN)
       .then(() => {
         console.log("Connected to Discord");
         return;
