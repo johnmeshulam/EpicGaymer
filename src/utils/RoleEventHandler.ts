@@ -8,8 +8,9 @@ export default class RoleEventHandler {
 
   public static handleDeleteEvent(role: Role) {
     if (!this.locked) {
-      this.service.deleteRole(role);
-      RuleMessageService.update(role.guild);
+      this.service.deleteRole(role).then(() => {
+        RuleMessageService.update(role.guild);
+      });
     }
   }
 
